@@ -50,7 +50,7 @@ class _VoiceChatScreenState extends State<VoiceChatScreen> {
   // TODO: In a real app, fetch this token from your backend!
   // For dev/testing, we paste a temporary token here.
   final String _liveKitUrl = 'wss://voice2text-7hticrc9.livekit.cloud';
-  final String _token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRmx1dHRlciBVc2VyIiwidmlkZW8iOnsicm9vbUpvaW4iOnRydWUsInJvb20iOiJvcGVuY2xhdy1yb29tLTEiLCJjYW5QdWJsaXNoIjp0cnVlLCJjYW5TdWJzY3JpYmUiOnRydWUsImNhblB1Ymxpc2hEYXRhIjp0cnVlfSwic3ViIjoiZmx1dHRlcl91c2VyIiwiaXNzIjoiQVBJTXRUelRTYzVpWld5IiwibmJmIjoxNzcxNTA3MjgwLCJleHAiOjE3NzE1OTM2ODB9.Q8kXfyjcFUvB59YelH9SC2N0JIYxxn0Ua1OMnkyCzmk';  
+  final String _token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRmx1dHRlciBVc2VyIiwidmlkZW8iOnsicm9vbUpvaW4iOnRydWUsInJvb20iOiJvcGVuY2xhdy1yb29tLTEiLCJjYW5QdWJsaXNoIjp0cnVlLCJjYW5TdWJzY3JpYmUiOnRydWUsImNhblB1Ymxpc2hEYXRhIjp0cnVlfSwic3ViIjoiZmx1dHRlcl91c2VyIiwiaXNzIjoiQVBJTXRUelRTYzVpWld5IiwibmJmIjoxNzcxNTIzNDYxLCJleHAiOjE4MDMwNTk0NjF9.PGVBqsBUG-eYmlG8syJo07rv4eXFU4IoFqXqdLEhfkg';  
 
   @override
   void initState() {
