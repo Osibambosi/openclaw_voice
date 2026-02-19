@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'package:livekit_client/livekit_client.dart';
 
 class VoiceOrb extends StatefulWidget {
   final bool isListening;
+  final AudioTrack? audioTrack;
+  final AudioTrack? localTrack;
 
-  const VoiceOrb({super.key, required this.isListening});
+  const VoiceOrb({
+    super.key, 
+    required this.isListening, 
+    this.audioTrack,
+    this.localTrack,
+  });
 
   @override
   State<VoiceOrb> createState() => _VoiceOrbState();
@@ -12,18 +20,75 @@ class VoiceOrb extends StatefulWidget {
 
 class _VoiceOrbState extends State<VoiceOrb> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  double _currentVolume = 0.0;
+  AudioVisualizer? _remoteVisualizer;
+  AudioVisualizer? _localVisualizer;
 
   @override
   void initState() {
     super.initState();
+    print("[DEBUG] VoiceOrb Init - Visualizer Version 2.0"); 
     _controller = AnimationController(
-        vsync: this, duration: const Duration(seconds: 6))
-      ..repeat();
+      vsync: this, 
+      duration: const Duration(milliseconds: 1000),
+    )..repeat(reverse: true);
+    
+    _setupListeners();
+  }
+
+  @override
+  void didUpdateWidget(covariant VoiceOrb oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.audioTrack != widget.audioTrack || oldWidget.localTrack != widget.localTrack) {
+      _setupListeners();
+    }
+  }
+
+  void _setupListeners() {
+    _remoteVisualizer?.dispose();
+    _localVisualizer?.dispose();
+    _remoteVisualizer = null;
+    _localVisualizer = null;
+
+    void onVolumeEvent(AudioVisualizerEvent event) {
+      final bands = event.event as List<double>;
+      if (bands.isNotEmpty) {
+        double sum = 0;
+        for (var band in bands) {
+          sum += band;
+        }
+        
+        if (mounted) {
+          setState(() {
+            final avg = sum / bands.length;
+            // print("Avg Volume: $avg"); // Commented out to reduce noise, enable if needed
+            // Smooth transition
+            _currentVolume += (avg - _currentVolume) * 0.2;
+          });
+        }
+      }
+    }
+
+    if (widget.audioTrack != null) {
+      print("[DEBUG] Setting up remote visualizer");
+      _remoteVisualizer = createVisualizer(widget.audioTrack!, options: const AudioVisualizerOptions(barCount: 7));
+      _remoteVisualizer!.events.on<AudioVisualizerEvent>(onVolumeEvent);
+      _remoteVisualizer!.start();
+    }
+    
+    if (widget.localTrack != null) {
+      print("[DEBUG] Setting up local visualizer");
+      _localVisualizer = createVisualizer(widget.localTrack!, options: const AudioVisualizerOptions(barCount: 7));
+      _localVisualizer!.events.on<AudioVisualizerEvent>(onVolumeEvent);
+      _localVisualizer!.start();
+    }
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _localVisualizer?.dispose();
+    _remoteVisualizer?.dispose();
     super.dispose();
   }
 
@@ -36,10 +101,11 @@ class _VoiceOrbState extends State<VoiceOrb> with SingleTickerProviderStateMixin
           painter: OrbPainter(
             animationValue: _controller.value,
             isListening: widget.isListening,
+            volume: _currentVolume * 3.0, // Amplify for visual effect
           ),
           child: Container(
-            width: 350,
-            height: 350,
+            width: 300,
+            height: 300,
           ),
         );
       },
@@ -50,69 +116,66 @@ class _VoiceOrbState extends State<VoiceOrb> with SingleTickerProviderStateMixin
 class OrbPainter extends CustomPainter {
   final double animationValue;
   final bool isListening;
+  final double volume;
 
-  OrbPainter({required this.animationValue, required this.isListening});
+  OrbPainter({
+    required this.animationValue, 
+    required this.isListening,
+    required this.volume,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = math.min(size.width, size.height) / 2;
 
-    // 1. Outer Glow (Soft Violet)
-    final outerGlowPaint = Paint()
-      ..shader = RadialGradient(
-        colors: [
-          const Color(0xFF8B5CF6).withOpacity(0.2), // Violet
-          const Color(0xFF3B82F6).withOpacity(0.0), // Blue transparent
-        ],
-        stops: const [0.5, 1.0],
-      ).createShader(Rect.fromCircle(center: center, radius: radius * 1.2));
-      
-    canvas.drawCircle(center, radius * 1.2, outerGlowPaint);
+    // Breathing effect base
+    double breathe = math.sin(animationValue * 2 * math.pi) * 0.05 + 1.0;
+    
+    // React to volume
+    if (isListening || volume > 0.05) {
+       // Add volume reaction to breathe
+       breathe += volume * 0.5; 
+       breathe = breathe.clamp(0.8, 1.4);
+    }
+    
+    // Active state faster pulse
+    if (isListening && volume < 0.01) {
+       breathe = math.sin(animationValue * 4 * math.pi) * 0.08 + 1.1; 
+    }
 
-    // 2. Main Native Orb (Deep Blue/Cyber Cyan)
+    // Glowing core
     final paint = Paint()
       ..shader = RadialGradient(
         colors: [
           Colors.white.withOpacity(0.9),
-          const Color(0xFF6366F1).withOpacity(0.6), // Indigo
-          const Color(0xFF0F172A).withOpacity(0.0), // Dark Slate
+          const Color(0xFF6366F1).withOpacity(0.7), // Indigo
+          const Color(0xFF8B5CF6).withOpacity(0.3), // Violet
+          Colors.transparent,
         ],
-        stops: const [0.1, 0.5, 1.0],
-      ).createShader(Rect.fromCircle(center: center, radius: radius));
+        stops: const [0.0, 0.4, 0.7, 1.0],
+      ).createShader(Rect.fromCircle(center: center, radius: radius * breathe));
 
-    // Breathing math
-    double breathe = math.sin(animationValue * 2 * math.pi) * 0.05 + 1.0;
+    canvas.drawCircle(center, radius * breathe, paint);
     
-    // Turbulent ripples when listening
-    double ripple = 0;
-    if (isListening) {
-       breathe = math.sin(animationValue * 5 * math.pi) * 0.08 + 1.1; 
-       ripple = math.cos(animationValue * 10 * math.pi) * 5;
-    }
-
-    canvas.drawCircle(center, (radius * breathe) + ripple, paint);
-    
-    // 3. Inner Core Ring (Sharp White)
+    // Outer Rings (Echo)
     final ringPaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5
-      ..color = Colors.white.withOpacity(0.15)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2);
+      ..strokeWidth = 2.0
+      ..color = Colors.white.withOpacity(0.2);
       
-     canvas.drawCircle(center, radius * breathe * 0.6, ringPaint);
-     
-    // 4. Orbiting Particles (Simple)
-    final particlePaint = Paint()..color = Colors.white.withOpacity(0.4);
-    double particleAngle = animationValue * 2 * math.pi;
-    double particleX = center.dx + math.cos(particleAngle) * (radius * 0.8);
-    double particleY = center.dy + math.sin(particleAngle) * (radius * 0.8);
-    canvas.drawCircle(Offset(particleX, particleY), 3, particlePaint);
+    // Draw expanding rings based on volume history or animation
+    double ringSize = radius * (breathe + 0.2);
+    canvas.drawCircle(center, ringSize, ringPaint);
+    
+    canvas.drawCircle(center, radius * (breathe * 0.8), 
+       Paint()..style = PaintingStyle.stroke ..strokeWidth=1 ..color=Colors.white.withOpacity(0.1));
   }
 
   @override
   bool shouldRepaint(covariant OrbPainter oldDelegate) {
     return oldDelegate.animationValue != animationValue ||
-        oldDelegate.isListening != isListening;
+        oldDelegate.isListening != isListening ||
+        oldDelegate.volume != volume;
   }
 }
