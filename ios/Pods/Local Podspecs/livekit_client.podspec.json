@@ -1,0 +1,35 @@
+{
+  "name": "livekit_client",
+  "version": "2.6.3",
+  "summary": "Open source platform for real-time audio and video.",
+  "description": "Open source platform for real-time audio and video.",
+  "homepage": "https://livekit.io/",
+  "license": {
+    "file": "../LICENSE"
+  },
+  "authors": {
+    "LiveKit": "contact@livekit.io"
+  },
+  "source": {
+    "path": "."
+  },
+  "source_files": "Classes/**/*",
+  "public_header_files": "Classes/**/*.h",
+  "platforms": {
+    "ios": "13.0"
+  },
+  "pod_target_xcconfig": {
+    "DEFINES_MODULE": "YES",
+    "EXCLUDED_ARCHS[sdk=iphonesimulator*]": "i386"
+  },
+  "swift_versions": "5.0",
+  "static_framework": true,
+  "dependencies": {
+    "Flutter": [],
+    "WebRTC-SDK": [
+      "137.7151.04"
+    ],
+    "flutter_webrtc": []
+  },
+  "swift_version": "5.0"
+}

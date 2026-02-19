@@ -1,0 +1,6 @@
+framework module livekit_client {
+  umbrella header "livekit_client-umbrella.h"
+
+  export *
+  module * { export * }
+}
