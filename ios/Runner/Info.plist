@@ -5,9 +5,9 @@
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>OpenClaw needs access to your microphone for voice chat.</string>
+	<string>Live Chatty needs access to your microphone for voice chat.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>OpenClaw needs access to your camera for video verification.</string>
+	<string>Live Chatty needs access to your camera for video verification.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -19,7 +19,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>openclaw_voice</string>
+	<string>live_chatty</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

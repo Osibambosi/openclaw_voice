@@ -1,6 +1,6 @@
 {
-    "name": "openclaw_voice",
-    "short_name": "openclaw_voice",
+    "name": "live_chatty",
+    "short_name": "live_chatty",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

@@ -6,16 +6,16 @@ import 'voice_orb.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const OpenClawVoiceApp());
+  runApp(const LiveChattyApp());
 }
 
-class OpenClawVoiceApp extends StatelessWidget {
-  const OpenClawVoiceApp({super.key});
+class LiveChattyApp extends StatelessWidget {
+  const LiveChattyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'OpenClaw Voice',
+      title: 'Live Chatty',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
@@ -197,7 +197,7 @@ class _VoiceChatScreenState extends State<VoiceChatScreen> {
                    Padding(
                      padding: const EdgeInsets.only(top: 20.0),
                      child: Text(
-                       isConnected ? "OpenClaw Live" : "Ready",
+                       isConnected ? "Live Chatty Live" : "Ready",
                        style: TextStyle(
                          color: Colors.white.withOpacity(0.5),
                          fontSize: 14,

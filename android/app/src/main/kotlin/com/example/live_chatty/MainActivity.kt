@@ -1,4 +1,4 @@
-package com.example.openclaw_voice
+package com.example.live_chatty
 
 import io.flutter.embedding.android.FlutterActivity
 
